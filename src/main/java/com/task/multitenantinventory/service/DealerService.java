@@ -35,7 +35,6 @@ public class DealerService {
         }
 
         Dealer dealer = Dealer.builder()
-                .id(UUID.randomUUID())
                 .tenantId(tenantId)
                 .name(request.getName())
                 .email(request.getEmail())

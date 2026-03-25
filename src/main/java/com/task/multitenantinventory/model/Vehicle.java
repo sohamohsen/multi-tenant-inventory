@@ -23,7 +23,7 @@ import java.util.UUID;
 public class Vehicle extends BaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "tenant_id", nullable = false)
