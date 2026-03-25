@@ -1,4 +1,4 @@
-package com.task.multitenantinventory.exception;
+package com.task.multitenantinventory.common.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

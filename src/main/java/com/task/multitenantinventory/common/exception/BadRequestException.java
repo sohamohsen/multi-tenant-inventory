@@ -1,4 +1,4 @@
-package com.task.multitenantinventory.exception;
+package com.task.multitenantinventory.common.exception;
 
 public class BadRequestException extends RuntimeException {
     public BadRequestException(String message) {

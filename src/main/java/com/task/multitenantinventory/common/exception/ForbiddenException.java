@@ -1,4 +1,4 @@
-package com.task.multitenantinventory.exception;
+package com.task.multitenantinventory.common.exception;
 
 public class ForbiddenException extends RuntimeException {
   public ForbiddenException(String message) {

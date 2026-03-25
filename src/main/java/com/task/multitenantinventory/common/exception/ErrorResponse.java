@@ -1,4 +1,4 @@
-package com.task.multitenantinventory.exception;
+package com.task.multitenantinventory.common.exception;
 
 import lombok.Builder;
 import lombok.Data;
