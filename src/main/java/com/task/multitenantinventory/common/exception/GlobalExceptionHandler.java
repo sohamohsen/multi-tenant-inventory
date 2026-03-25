@@ -11,13 +11,18 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        return buildResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound (ResourceNotFoundException ex){
         return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException (BadRequestException ex){
+    public ResponseEntity<ErrorResponse> handleBadRequest (BadRequestException ex){
         return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
