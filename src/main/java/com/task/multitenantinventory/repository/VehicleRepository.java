@@ -19,39 +19,21 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
 
     Optional<Vehicle> findByIdAndTenantId(UUID id, UUID tenantId);
 
-    @Query(value = """
-SELECT * FROM vehicles v
-WHERE v.tenant_id = :tenantId
-AND (:model IS NULL OR LOWER(v.model) LIKE LOWER(CONCAT('%', :model, '%')))
-AND (:status IS NULL OR v.status = :status)
-AND (:priceMin IS NULL OR v.price >= :priceMin)
-AND (:priceMax IS NULL OR v.price <= :priceMax)
-""",
-            countQuery = """
-SELECT count(*) FROM vehicles v
-WHERE v.tenant_id = :tenantId
-AND (:model IS NULL OR LOWER(v.model) LIKE LOWER(CONCAT('%', :model, '%')))
-AND (:status IS NULL OR v.status = :status)
-AND (:priceMin IS NULL OR v.price >= :priceMin)
-AND (:priceMax IS NULL OR v.price <= :priceMax)
-""",
-            nativeQuery = true)
-    Page<Vehicle> filterVehicles(
-            @Param("model") String model,
-            @Param("status") String status,
-            @Param("priceMin") BigDecimal priceMin,
-            @Param("priceMax") BigDecimal priceMax,
-            @Param("tenantId") UUID tenantId,
-            Pageable pageable
-    );
-
     @Query("""
     SELECT v FROM Vehicle v
     JOIN Dealer d ON v.dealerId = d.id
-    WHERE d.subscriptionType = :subscription
-    AND v.tenantId = :tenantId
-""")
-    Page<Vehicle> findVehiclesBySubscriptionAndTenant(
+    WHERE v.tenantId = :tenantId
+    AND (:subscription IS NULL OR d.subscriptionType = :subscription)
+    AND (CAST(:model AS string) IS NULL OR LOWER(v.model) LIKE LOWER(CONCAT('%', CAST(:model AS string), '%')))
+    AND (:status IS NULL OR v.status = :status)
+    AND (:priceMin IS NULL OR v.price >= :priceMin)
+    AND (:priceMax IS NULL OR v.price <= :priceMax)
+    """)
+    Page<Vehicle> filterVehicles(
+            @Param("model") String model,
+            @Param("status") VehicleStatus status,
+            @Param("priceMin") BigDecimal priceMin,
+            @Param("priceMax") BigDecimal priceMax,
             @Param("subscription") SubscriptionType subscription,
             @Param("tenantId") UUID tenantId,
             Pageable pageable

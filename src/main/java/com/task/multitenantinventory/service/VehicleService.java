@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -69,31 +70,18 @@ public class VehicleService {
 
         UUID tenantId = TenantContext.getTenant();
 
-        Page<Vehicle> vehicles;
+        Page<Vehicle> vehicles = vehicleRepository.filterVehicles(
+                model,
+                status,
+                priceMin,
+                priceMax,
+                subscription,
+                tenantId,
+                pageable
+        );
 
-        if (subscription != null) {
-
-            vehicles = vehicleRepository
-                    .findVehiclesBySubscriptionAndTenant(subscription, tenantId, pageable);
-
-        } else {
-
-            vehicles = vehicleRepository
-                    .filterVehicles(model, String.valueOf(status), priceMin, priceMax, tenantId, pageable);
-        }
-
-        Page<VehicleResponse> mapped = vehicles.map(this::mapToResponse);
-
-        return PageResponse.<VehicleResponse>builder()
-                .content(mapped.getContent())
-                .page(mapped.getNumber())
-                .size(mapped.getSize())
-                .totalElements(mapped.getTotalElements())
-                .totalPages(mapped.getTotalPages())
-                .last(mapped.isLast())
-                .build();
+        return mapToPageResponse(vehicles);
     }
-
     public VehicleResponse updateVehicle(UUID id, UpdateVehicleRequest request) {
 
         UUID tenantId = TenantContext.getTenant();
@@ -128,6 +116,23 @@ public class VehicleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found"));
 
         vehicleRepository.delete(vehicle);
+    }
+
+    private PageResponse<VehicleResponse> mapToPageResponse(Page<Vehicle> vehicles) {
+
+        List<VehicleResponse> content = vehicles.getContent()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+
+        return new PageResponse<>(
+                content,
+                vehicles.getNumber(),
+                vehicles.getSize(),
+                vehicles.getTotalElements(),
+                vehicles.getTotalPages(),
+                vehicles.isLast()
+        );
     }
 
     private VehicleResponse mapToResponse(Vehicle vehicle) {
