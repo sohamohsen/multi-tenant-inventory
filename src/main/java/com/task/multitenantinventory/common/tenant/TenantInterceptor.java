@@ -17,7 +17,18 @@ public class TenantInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) throws Exception {
 
-        if (request.getRequestURI().startsWith("/admin")) {
+        String uri = request.getRequestURI();
+
+        // 🔥 استثناء Swagger + static resources
+        if (uri.startsWith("/swagger-ui")
+                || uri.startsWith("/v3/api-docs")
+                || uri.startsWith("/swagger-resources")
+                || uri.startsWith("/webjars")) {
+            return true;
+        }
+
+        // 👑 Admin protection
+        if (uri.startsWith("/admin")) {
 
             String role = request.getHeader("X-Role");
 
@@ -28,6 +39,7 @@ public class TenantInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        // 🔐 Tenant logic
         String tenantHeader = request.getHeader("X-Tenant-Id");
 
         if (tenantHeader == null || tenantHeader.isEmpty()) {

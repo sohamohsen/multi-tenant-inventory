@@ -13,6 +13,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        ex.printStackTrace(); // 🔥 مهم
+
         return buildResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
