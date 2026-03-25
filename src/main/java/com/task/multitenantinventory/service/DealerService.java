@@ -9,6 +9,7 @@ import com.task.multitenantinventory.dto.DealerRequest;
 import com.task.multitenantinventory.dto.DealerResponse;
 import com.task.multitenantinventory.dto.UpdateDealerRequest;
 import com.task.multitenantinventory.model.Dealer;
+import com.task.multitenantinventory.model.enums.SubscriptionType;
 import com.task.multitenantinventory.repository.DealerRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -94,12 +98,10 @@ public class DealerService {
                 .findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Dealer not found"));
 
-        //  name
         if (request.getName() != null && !request.getName().isBlank()) {
             dealer.setName(request.getName());
         }
 
-        //  email
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
 
             if (!dealer.getEmail().equals(request.getEmail())) {
@@ -112,7 +114,6 @@ public class DealerService {
             }
         }
 
-        //  subscription
         if (request.getSubscriptionType() != null) {
             dealer.setSubscriptionType(request.getSubscriptionType());
         }
@@ -120,6 +121,22 @@ public class DealerService {
         Dealer updated = dealerRepository.save(dealer);
 
         return mapToResponse(updated);
+    }
+
+    public Map<String, Long> countDealersBySubscription() {
+
+        List<Object[]> result = dealerRepository.countDealersBySubscription();
+
+        Map<String, Long> response = new HashMap<>();
+
+        for (Object[] row : result) {
+            SubscriptionType type = (SubscriptionType) row[0];
+            Long count = (Long) row[1];
+
+            response.put(type.name(), count);
+        }
+
+        return response;
     }
 
     public void deleteDealer(UUID id) {

@@ -2,6 +2,7 @@ package com.task.multitenantinventory.controller;
 
 import com.task.multitenantinventory.common.PageResponse;
 import com.task.multitenantinventory.dto.CreateVehicleRequest;
+import com.task.multitenantinventory.dto.UpdateVehicleRequest;
 import com.task.multitenantinventory.dto.VehicleResponse;
 import com.task.multitenantinventory.model.enums.SubscriptionType;
 import com.task.multitenantinventory.model.enums.VehicleStatus;
@@ -45,7 +46,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Get vehicles with filtering and pagination")
+    @Operation(summary = "Get vehicles with filtering, pagination, and subscription")
     @GetMapping
     public ResponseEntity<PageResponse<VehicleResponse>> getVehicles(
             @RequestParam(required = false) String model,
@@ -58,5 +59,23 @@ public class VehicleController {
         return ResponseEntity.ok(
                 vehicleService.getVehicles(model, status, priceMin, priceMax, subscription, pageable)
         );
+    }
+
+    @Operation(summary = "Update vehicle")
+    @PatchMapping("/{id}")
+    public ResponseEntity<VehicleResponse> updateVehicle(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateVehicleRequest request) {
+
+        return ResponseEntity.ok(vehicleService.updateVehicle(id, request));
+    }
+
+    @Operation(summary = "Delete vehicle")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVehicle(@PathVariable UUID id) {
+
+        vehicleService.deleteVehicle(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -4,6 +4,7 @@ import com.task.multitenantinventory.common.PageResponse;
 import com.task.multitenantinventory.common.exception.ResourceNotFoundException;
 import com.task.multitenantinventory.common.tenant.TenantContext;
 import com.task.multitenantinventory.dto.CreateVehicleRequest;
+import com.task.multitenantinventory.dto.UpdateVehicleRequest;
 import com.task.multitenantinventory.dto.VehicleResponse;
 import com.task.multitenantinventory.model.Dealer;
 import com.task.multitenantinventory.model.Vehicle;
@@ -71,7 +72,6 @@ public class VehicleService {
 
         Page<Vehicle> vehicles;
 
-        // 🔥 subscription filter
         if (subscription != null) {
 
             vehicles = vehicleRepository
@@ -94,6 +94,43 @@ public class VehicleService {
                 .last(mapped.isLast())
                 .build();
     }
+
+    public VehicleResponse updateVehicle(UUID id, UpdateVehicleRequest request) {
+
+        UUID tenantId = TenantContext.getTenant();
+
+        Vehicle vehicle = vehicleRepository
+                .findByIdAndTenantId(id, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found"));
+
+        if (request.getModel() != null && !request.getModel().isBlank()) {
+            vehicle.setModel(request.getModel());
+        }
+
+        if (request.getPrice() != null) {
+            vehicle.setPrice(request.getPrice());
+        }
+
+        if (request.getStatus() != null) {
+            vehicle.setStatus(request.getStatus());
+        }
+
+        Vehicle updated = vehicleRepository.save(vehicle);
+
+        return mapToResponse(updated);
+    }
+
+    public void deleteVehicle(UUID id) {
+
+        UUID tenantId = TenantContext.getTenant();
+
+        Vehicle vehicle = vehicleRepository
+                .findByIdAndTenantId(id, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found"));
+
+        vehicleRepository.delete(vehicle);
+    }
+
     private VehicleResponse mapToResponse(Vehicle vehicle) {
         return VehicleResponse.builder()
                 .id(vehicle.getId())
