@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -15,22 +16,32 @@ import java.util.UUID;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
+
     Optional<Vehicle> findByIdAndTenantId(UUID id, UUID tenantId);
 
-    @Query("""
-    SELECT v FROM Vehicle v
-    WHERE v.tenantId = :tenantId
-    AND (:model IS NULL OR LOWER(v.model) LIKE LOWER(CONCAT('%', :model, '%')))
-    AND (:status IS NULL OR v.status = :status)
-    AND (:priceMin IS NULL OR v.price >= :priceMin)
-    AND (:priceMax IS NULL OR v.price <= :priceMax)
-""")
+    @Query(value = """
+SELECT * FROM vehicles v
+WHERE v.tenant_id = :tenantId
+AND (:model IS NULL OR LOWER(v.model) LIKE LOWER(CONCAT('%', :model, '%')))
+AND (:status IS NULL OR v.status = :status)
+AND (:priceMin IS NULL OR v.price >= :priceMin)
+AND (:priceMax IS NULL OR v.price <= :priceMax)
+""",
+            countQuery = """
+SELECT count(*) FROM vehicles v
+WHERE v.tenant_id = :tenantId
+AND (:model IS NULL OR LOWER(v.model) LIKE LOWER(CONCAT('%', :model, '%')))
+AND (:status IS NULL OR v.status = :status)
+AND (:priceMin IS NULL OR v.price >= :priceMin)
+AND (:priceMax IS NULL OR v.price <= :priceMax)
+""",
+            nativeQuery = true)
     Page<Vehicle> filterVehicles(
-            String model,
-            VehicleStatus status,
-            BigDecimal priceMin,
-            BigDecimal priceMax,
-            UUID tenantId,
+            @Param("model") String model,
+            @Param("status") String status,
+            @Param("priceMin") BigDecimal priceMin,
+            @Param("priceMax") BigDecimal priceMax,
+            @Param("tenantId") UUID tenantId,
             Pageable pageable
     );
 
@@ -40,9 +51,9 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
     WHERE d.subscriptionType = :subscription
     AND v.tenantId = :tenantId
 """)
-    Page<Vehicle> findBySubscriptionAndTenant(
-            SubscriptionType subscription,
-            UUID tenantId,
+    Page<Vehicle> findVehiclesBySubscriptionAndTenant(
+            @Param("subscription") SubscriptionType subscription,
+            @Param("tenantId") UUID tenantId,
             Pageable pageable
     );
 }

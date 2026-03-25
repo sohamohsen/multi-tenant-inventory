@@ -36,7 +36,6 @@ public class VehicleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dealer not found"));
 
         Vehicle vehicle = Vehicle.builder()
-                .id(UUID.randomUUID())
                 .tenantId(tenantId)
                 .dealerId(dealer.getId())
                 .model(request.getModel())
@@ -75,12 +74,12 @@ public class VehicleService {
         if (subscription != null) {
 
             vehicles = vehicleRepository
-                    .findBySubscriptionAndTenant(subscription, tenantId, pageable);
+                    .findVehiclesBySubscriptionAndTenant(subscription, tenantId, pageable);
 
         } else {
 
             vehicles = vehicleRepository
-                    .filterVehicles(model, status, priceMin, priceMax, tenantId, pageable);
+                    .filterVehicles(model, String.valueOf(status), priceMin, priceMax, tenantId, pageable);
         }
 
         Page<VehicleResponse> mapped = vehicles.map(this::mapToResponse);
