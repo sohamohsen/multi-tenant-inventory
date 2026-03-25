@@ -41,19 +41,4 @@ public class Vehicle extends BaseEntity{
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VehicleStatus status;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createAt;
-
-    @LastModifiedDate
-    private LocalDateTime updateAt;
-
-    @CreatedBy
-    @Column(length = 50, updatable = false)
-    private LocalDateTime createdBy;
-
-    @LastModifiedDate
-    @Column(length = 50)
-    private LocalDateTime updatedBy;
-}
+    }
